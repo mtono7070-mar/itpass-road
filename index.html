@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF2A8">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>ITパス合格ロード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+<style>
+/* Layout: sticker-book / game HUD — chunky outlined cards with hard shadows on a dotted ground, one column of phases like stages on a map */
+:root{
+  --bg:#FFF2A8; --dot:#F5D94E; --card:#FFFFFF; --ink:#1E1442; --muted:#5B5280;
+  --pink:#FF4FA3; --cyan:#22BFEF; --orange:#FF8A1F; --violet:#8B5CF6; --mint:#2FD8A0;
+  --on-accent:#1E1442; --track:#EDE6FF;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  --shadow:4px 4px 0 var(--ink);
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171034; --dot:#251B52; --card:#251C55; --ink:#FFF4D6; --muted:#C2B8E8;
+  --track:#3A2F72; --on-accent:#171034; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#171034; --dot:#251B52; --card:#251C55; --ink:#FFF4D6; --muted:#C2B8E8;
+  --track:#3A2F72; --on-accent:#171034; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:radial-gradient(var(--dot) 2px,transparent 2.5px);
+  background-size:22px 22px;
+  color:var(--ink); font-family:var(--body); font-weight:500; font-size:15px; line-height:1.7;
+  padding:28px 16px 80px;
+}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.25}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* ---------- hero ---------- */
+.hero{display:flex;flex-direction:column;gap:18px}
+.tag{align-self:flex-start;background:var(--pink);color:var(--on-accent);border:3px solid var(--ink);border-radius:999px;
+  padding:4px 14px;font-weight:800;letter-spacing:.06em;font-size:13px;box-shadow:3px 3px 0 var(--ink);transform:rotate(-2deg)}
+.hero h1{font-size:clamp(34px,9vw,60px);letter-spacing:.01em}
+.hero h1 .hl{background:linear-gradient(transparent 58%,var(--cyan) 58%);padding:0 .1em}
+.hero p.lead{margin:0;font-weight:700;color:var(--muted);max-width:34em}
+
+.hud{display:grid;grid-template-columns:1.1fr 1fr;gap:14px}
+@media (max-width:560px){.hud{grid-template-columns:1fr}}
+.box{background:var(--card);border:3px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px;min-width:0}
+.count{display:flex;flex-direction:column;justify-content:center;background:var(--orange);color:var(--on-accent)}
+.count .lbl{font-weight:800;font-size:13px;letter-spacing:.08em}
+.count .num{font-family:var(--display);font-size:clamp(56px,16vw,84px);line-height:1;font-variant-numeric:tabular-nums}
+.count .num small{font-size:.32em;margin-left:4px}
+.count .date{font-weight:800}
+
+.lv{display:flex;flex-direction:column;gap:8px}
+.lv-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lv-badge{font-family:var(--display);font-size:30px;line-height:1;color:var(--violet)}
+.lv-title{font-weight:800}
+.bar{height:16px;border:3px solid var(--ink);border-radius:999px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--pink) 0 10px,#FF7DBB 10px 20px);transition:width .5s cubic-bezier(.3,1.6,.5,1)}
+.xp-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.chip{border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+.chip.fire{background:var(--orange);color:var(--on-accent)}
+.chip.cy{background:var(--cyan);color:var(--on-accent)}
+
+.today-btn{width:100%;border:3px solid var(--ink);border-radius:var(--r);background:var(--mint);color:var(--on-accent);
+  font-family:var(--display);font-size:clamp(20px,5.5vw,26px);padding:16px;cursor:pointer;box-shadow:var(--shadow);
+  transition:transform .12s, box-shadow .12s}
+.today-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.today-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.today-btn.done{background:var(--card);color:var(--ink)}
+.today-btn small{display:block;font-family:var(--body);font-weight:700;font-size:13px}
+
+/* ---------- calendar + stickers ---------- */
+.row2{display:grid;grid-template-columns:auto 1fr;gap:14px}
+@media (max-width:620px){.row2{grid-template-columns:1fr}}
+.sec-h{font-family:var(--display);font-size:17px;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.sec-h span{font-family:var(--body);font-weight:700;font-size:12px;color:var(--muted)}
+.heat-scroll{overflow-x:auto}
+.heat{display:grid;grid-template-rows:repeat(7,14px);grid-auto-flow:column;grid-auto-columns:14px;gap:4px}
+.heat b{border-radius:4px;background:var(--track);border:1.5px solid transparent}
+.heat b.on{background:var(--mint);border-color:var(--ink)}
+.heat b.today{outline:2.5px solid var(--pink);outline-offset:1px}
+.heat b.exam{background:var(--pink);border-color:var(--ink)}
+.heat b.blank{background:transparent}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);font-weight:700;margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:1.5px solid var(--ink)}
+
+.stickers{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.stk{aspect-ratio:1;max-width:100%;border-radius:50%;border:2.5px dashed var(--muted);display:grid;place-items:center;
+  font-family:var(--display);font-size:12px;color:var(--muted);opacity:.6}
+.stk.got{opacity:1;border:3px solid var(--ink);color:var(--on-accent);box-shadow:2px 2px 0 var(--ink);animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+.stk.got.s0{background:var(--pink)} .stk.got.s1{background:var(--cyan)} .stk.got.s2{background:var(--orange)} .stk.got.s3{background:var(--mint)} .stk.got.s4{background:var(--violet)}
+.stk.got.star{clip-path:polygon(50% 0,61% 33%,98% 35%,68% 57%,79% 92%,50% 71%,21% 92%,32% 57%,2% 35%,39% 33%);border-radius:0;box-shadow:none}
+
+/* ---------- phases ---------- */
+.phase{display:flex;flex-direction:column;gap:14px}
+.ph-head{border:3px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px;color:var(--on-accent);
+  display:flex;flex-direction:column;gap:10px}
+.ph-head.c1{background:var(--pink)} .ph-head.c2{background:var(--cyan)} .ph-head.c3{background:var(--violet)} .ph-head.c4{background:var(--orange)}
+.ph-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ph-no{font-family:var(--display);font-size:13px;letter-spacing:.1em;background:var(--card);color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:2px 12px}
+.ph-head h2{font-size:clamp(22px,6vw,30px)}
+.ph-sub{margin:0;font-weight:800;font-size:14px}
+.ph-prog{display:flex;align-items:center;gap:10px;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px}
+.ph-prog .bar{flex:1;background:var(--card)}
+.ph-prog .bar i{background:var(--ink)}
+.reward{display:flex;align-items:center;gap:8px;background:var(--card);color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:6px 10px;flex-wrap:wrap}
+.reward label{font-weight:800;font-size:13px;white-space:nowrap}
+.reward input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:700;padding:4px 2px;outline:none;border-bottom:2px dashed var(--muted)}
+.reward input:focus{border-bottom-color:var(--pink)}
+
+.weeks{display:flex;flex-direction:column;gap:12px;padding-left:22px;position:relative}
+.weeks::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;border-left:4px dotted var(--ink);opacity:.35}
+.week{position:relative}
+.week::before{content:"";position:absolute;left:-22px;top:20px;width:18px;height:18px;border-radius:50%;background:var(--card);border:3px solid var(--ink)}
+.week.complete::before{background:var(--mint)}
+.week.now::before{background:var(--pink);animation:pulse 1.4s ease-in-out infinite}
+.wk-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.wk-label{font-family:var(--display);font-size:15px}
+.wk-range{font-weight:800;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.now-tag{background:var(--pink);color:var(--on-accent);border:2px solid var(--ink);border-radius:999px;font-weight:800;font-size:11px;padding:0 8px;letter-spacing:.08em}
+.wk-theme{font-weight:800;margin:0 0 8px}
+.week.now .box{box-shadow:6px 6px 0 var(--pink)}
+.stamp{position:absolute;right:14px;top:10px;font-family:var(--display);color:var(--pink);border:3px solid var(--pink);border-radius:10px;padding:0 8px;
+  transform:rotate(12deg);font-size:15px;background:var(--card);animation:stamp .4s cubic-bezier(.3,1.8,.5,1)}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.task label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:6px 8px;border-radius:12px;transition:background .15s}
+.task label:hover{background:var(--track)}
+.task input{appearance:none;flex:none;width:24px;height:24px;margin:1px 0 0;border:3px solid var(--ink);border-radius:8px;background:var(--card);cursor:pointer;display:grid;place-items:center;transition:transform .15s}
+.task input:checked{background:var(--mint);transform:rotate(-8deg) scale(1.08)}
+.task input:checked::after{content:"";width:6px;height:11px;border:solid var(--ink);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.task span{min-width:0}
+.task input:checked + span{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--pink);color:var(--muted)}
+.tip{margin:8px 0 0;font-size:13px;color:var(--muted);font-weight:700}
+
+/* ---------- goal ---------- */
+.goal{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;
+  background:repeating-linear-gradient(135deg,var(--card) 0 18px,var(--track) 18px 36px)}
+.goal h2{font-size:clamp(26px,7.5vw,40px)}
+.goal p{margin:0;font-weight:700;max-width:30em}
+.goal .reward{width:100%;max-width:520px;text-align:left}
+.pass-btn{border:3px solid var(--ink);border-radius:999px;background:var(--pink);color:var(--on-accent);font-family:var(--display);
+  font-size:clamp(20px,6vw,28px);padding:14px 30px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s, box-shadow .12s}
+.pass-btn:hover{transform:translate(-2px,-2px) rotate(-1deg);box-shadow:6px 6px 0 var(--ink)}
+.pass-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.passed-banner{font-family:var(--display);font-size:22px;color:var(--pink)}
+
+.foot{text-align:center;font-size:12px;color:var(--muted);font-weight:700}
+
+/* ---------- overlay ---------- */
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);z-index:60;
+  background:var(--ink);color:var(--bg);border-radius:999px;padding:10px 20px;font-weight:800;box-shadow:4px 4px 0 var(--pink);
+  transition:transform .35s cubic-bezier(.3,1.6,.5,1);max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;z-index:55;display:grid;place-items:center;padding:16px;background:rgb(23 16 52 / .55)}
+.modal-card{background:var(--card);border:4px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--ink);padding:26px 22px;
+  width:100%;max-width:420px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;animation:pop .5s cubic-bezier(.3,1.7,.5,1)}
+.modal-card .big{font-family:var(--display);font-size:clamp(30px,9vw,42px);line-height:1.1;color:var(--pink);-webkit-text-stroke:1.5px var(--ink)}
+.modal-card p{margin:0;font-weight:700}
+.capsule{width:150px;height:150px;position:relative;cursor:pointer;border:0;background:none;padding:0}
+.capsule .top,.capsule .btm{position:absolute;left:0;width:150px;height:75px;border:4px solid var(--ink);transition:transform .6s cubic-bezier(.3,1.5,.5,1),opacity .6s}
+.capsule .top{top:0;border-radius:75px 75px 0 0;background:var(--pink);border-bottom-width:2px}
+.capsule .btm{bottom:0;border-radius:0 0 75px 75px;background:var(--card);border-top-width:2px}
+.capsule .q{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:46px;color:var(--ink);transition:opacity .3s}
+.capsule:not(.open){animation:wobble 1.6s ease-in-out infinite}
+.capsule.open .top{transform:translateY(-70px) rotate(-25deg);opacity:0}
+.capsule.open .btm{transform:translateY(60px);opacity:0}
+.capsule.open .q{opacity:0}
+.prize{font-family:var(--display);font-size:24px;line-height:1.35;background:var(--bg);border:3px solid var(--ink);border-radius:16px;padding:12px 16px;width:100%;word-break:break-word;animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+.close-btn{border:3px solid var(--ink);border-radius:999px;background:var(--cyan);color:var(--on-accent);font-weight:800;font-size:16px;padding:8px 26px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+
+@keyframes pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+@keyframes stamp{0%{transform:rotate(12deg) scale(2.4);opacity:0}100%{transform:rotate(12deg) scale(1);opacity:1}}
+@keyframes pulse{50%{transform:scale(1.25)}}
+@keyframes wobble{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="hero">
+    <div class="tag">GOAL ▸ 2027.1.23 SAT</div>
+    <h1>ITパスポート<br><span class="hl">合格ロード</span></h1>
+    <p class="lead">1日1時間 × 約100日で合格まで。タスクをチェックしてXPを貯めよう。ステージをクリアするたびに、自分で決めたご褒美カプセルが開きます。</p>
+    <div class="hud">
+      <div class="box count">
+        <span class="lbl">試験まで</span>
+        <span class="num" id="cd">--<small>日</small></span>
+        <span class="date">2027年1月23日（土）</span>
+      </div>
+      <div class="box lv">
+        <div class="lv-top"><span class="lv-badge" id="lv">Lv.1</span><span class="lv-title" id="lvTitle">ITビギナー</span></div>
+        <div class="bar" role="progressbar" aria-label="次のレベルまで" aria-valuemin="0" aria-valuemax="100" id="xpBar"><i id="xpFill" style="width:0"></i></div>
+        <div class="xp-meta"><span id="xpNow">0 XP</span><span id="xpNext">次のレベルまで 100 XP</span></div>
+        <div class="stats">
+          <span class="chip fire" id="streak">連続 0日</span>
+          <span class="chip cy" id="days">勉強した日 0日</span>
+          <span class="chip" id="taskCount">タスク 0/0</span>
+        </div>
+      </div>
+    </div>
+    <button class="today-btn" id="todayBtn" type="button">今日の1時間、やった！<small>タップで記録 ＋5 XP</small></button>
+  </header>
+
+  <section class="row2">
+    <div class="box">
+      <div class="sec-h">勉強カレンダー <span>10/14 → 1/23</span></div>
+      <div class="heat-scroll"><div class="heat" id="heat"></div></div>
+      <div class="legend"><span><i style="background:var(--mint)"></i>勉強した日</span><span><i style="background:var(--pink)"></i>試験日</span></div>
+    </div>
+    <div class="box">
+      <div class="sec-h">シール帳 <span id="stkCount">0 / 16</span></div>
+      <div class="stickers" id="stickers"></div>
+      <p class="tip">その週のタスクを全部終えるとシールがもらえます。</p>
+    </div>
+  </section>
+
+  <div id="phases" class="wrap" style="gap:34px"></div>
+
+  <section class="box goal" id="goal">
+    <div class="tag" style="align-self:center">FINAL REWARD</div>
+    <h2>合格したら、これをする！</h2>
+    <p>いちばんワクワクするご褒美を書いておこう。合格ボタンを押すと、花火と一緒に発表されます。</p>
+    <div class="reward"><label for="rw-final">合格のご褒美</label><input id="rw-final" data-rw="final" maxlength="60" placeholder="例：週末に温泉旅行へ行く！"></div>
+    <div id="passArea"></div>
+  </section>
+
+  <p class="foot" id="saveNote">進み具合はこのブラウザに自動保存されます（スマホとPCの記録は別々です）</p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="modal" hidden></div>
+
+<script>
+const EXAM = "2027-01-23", START = "2026-10-14";
+const PHASES = [
+  {n:1, key:"p1", c:"c1", name:"参考書を1周する", sub:"理解度5〜6割でOK。止まらずに最後まで読み切ろう", ph:"例：ちょっといいケーキを食べる", weeks:[
+    {id:"w1", label:"WEEK 1", s:"2026-10-14", e:"2026-10-18", theme:"準備してスタート！", tasks:["参考書を1冊買う（図解が多いもの）","過去問サイト「ITパスポート過去問道場」をブックマーク","ストラテジ系：企業活動・組織の章を読む"]},
+    {id:"w2", label:"WEEK 2", s:"2026-10-19", e:"2026-10-25", theme:"ストラテジ系①", tasks:["財務（損益分岐点・ROE）を読む","法務（著作権・個人情報保護法）を読む","読んだ章の章末問題を解く"]},
+    {id:"w3", label:"WEEK 3", s:"2026-10-26", e:"2026-11-01", theme:"ストラテジ系②", tasks:["経営戦略（SWOT・PPM）を読む","AI・DX・システム戦略を読む","読んだ章の章末問題を解く"]},
+    {id:"w4", label:"WEEK 4", s:"2026-11-02", e:"2026-11-08", theme:"マネジメント系", tasks:["開発の流れ・アジャイルを読む","プロジェクト管理・サービス管理・監査を読む","1/23の受験日を予約する！"]},
+    {id:"w5", label:"WEEK 5", s:"2026-11-09", e:"2026-11-15", theme:"テクノロジ系①", tasks:["2進数・コンピュータの仕組みを読む","ソフトウェア・OSを読む","読んだ章の章末問題を解く"]},
+    {id:"w6", label:"WEEK 6", s:"2026-11-16", e:"2026-11-22", theme:"テクノロジ系②", tasks:["ネットワーク（IP・DNS）を読む","セキュリティ（暗号・攻撃手法）を読む","データベースを読む → 参考書1周クリア！"]}
+  ]},
+  {n:2, key:"p2", c:"c2", name:"過去問で固める", sub:"1日30問を解いて30分で復習。目標は各分野の正答率60%", ph:"例：欲しかった本や服を買う", weeks:[
+    {id:"w7", label:"WEEK 7", s:"2026-11-23", e:"2026-11-29", theme:"ストラテジ系の過去問", tasks:["ストラテジ系の過去問を150問解く","間違えた問題を参考書で確認する"]},
+    {id:"w8", label:"WEEK 8", s:"2026-11-30", e:"2026-12-06", theme:"マネジメント系の過去問", tasks:["マネジメント系の過去問を150問解く","間違えた問題を参考書で確認する"]},
+    {id:"w9", label:"WEEK 9", s:"2026-12-07", e:"2026-12-13", theme:"テクノロジ系の過去問①", tasks:["セキュリティ・ネットワークを150問解く","間違えた問題を参考書で確認する"]},
+    {id:"w10", label:"WEEK 10", s:"2026-12-14", e:"2026-12-20", theme:"テクノロジ系の過去問②", tasks:["計算問題・データベース・擬似言語を150問解く","擬似言語は簡単な問題だけ取れればOK"]},
+    {id:"w11", label:"WEEK 11", s:"2026-12-21", e:"2026-12-27", theme:"3分野ミックス", tasks:["3分野を混ぜて150問解く","各分野の正答率60%以上をチェック"]},
+    {id:"ny", label:"年末年始", s:"2026-12-28", e:"2027-01-03", theme:"遅れを取り戻すボーナス週", tasks:["遅れている分を取り戻す（なければ間違いノートを見直す）"]}
+  ]},
+  {n:3, key:"p3", c:"c3", name:"本番形式で仕上げる", sub:"週末に100問・120分の通し演習。目標は65%以上", ph:"例：映画を観に行く", weeks:[
+    {id:"w13", label:"WEEK 13", s:"2027-01-04", e:"2027-01-10", theme:"通し演習スタート", tasks:["通し演習 1回目（100問・120分）","通し演習 2回目","間違えた問題を復習する"]},
+    {id:"w14", label:"WEEK 14", s:"2027-01-11", e:"2027-01-17", theme:"通し演習で仕上げ", tasks:["通し演習 3回目","通し演習 4回目","65%以上、どの分野も50%以上をチェック"]}
+  ]},
+  {n:4, key:"p4", c:"c4", name:"直前＆本番", sub:"新しい教材には手を出さない。いままでの自分を信じよう", ph:"例：好きなお店で外食する", weeks:[
+    {id:"last", label:"直前", s:"2027-01-18", e:"2027-01-22", theme:"ラストスパート", tasks:["間違いノートと頻出用語を見直す","計算問題を毎日5問解く","本人確認書類と会場までの行き方を確認する"]},
+    {id:"exam", label:"本番", s:"2027-01-23", e:"2027-01-23", theme:"いよいよ受験日！", tasks:["試験を受ける！"]}
+  ]}
+];
+const TITLES = ["ITビギナー","用語コレクター","ストラテジ見習い","2進数ルーキー","ネットワーク探検家","セキュリティ番人","過去問ファイター","本番シミュレーター","合格目前","ITパスポートマスター"];
+const XP_TASK = 10, XP_DAY = 5, XP_LV = 100;
+const ALL_WEEKS = PHASES.flatMap(p => p.weeks.map(w => ({...w, phase:p})));
+const TASK_TOTAL = ALL_WEEKS.reduce((n,w) => n + w.tasks.length, 0);
+const KEY = "itpass-road-v1";
+
+/* ---------- state ---------- */
+let state = {done:{}, days:[], rewards:{}, passed:false, updatedAt:0};
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) state = {...state, ...s}; } catch(e) {}
+
+let docRef = null, saveTimer = null;
+function save(){
+  state.updatedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    if (docRef) docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {
+      document.getElementById("saveNote").textContent = "クラウドに保存できませんでした。このブラウザには保存されています";
+    });
+  }, 600);
+}
+async function initCloud(){
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id();
+    if (!id) return;
+    docRef = db.doc("data/users/" + id + "/itpass");
+    const snap = await docRef.get();
+    const remote = snap.exists ? snap.data() : null;
+    if (remote && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
+      state = {...state, ...JSON.parse(JSON.stringify(remote))};
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+      render();
+    } else if (state.updatedAt) {
+      docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {});
+    }
+    document.getElementById("saveNote").textContent = "進み具合はアカウントに自動保存されます（スマホとPCで共有できます）";
+  } catch(e) {}
+}
+
+/* ---------- dates ---------- */
+const pd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const fmt = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const todayStr = () => fmt(new Date());
+const dayDiff = (a,b) => Math.round((pd(b) - pd(a)) / 864e5);
+
+/* ---------- derived ---------- */
+const taskId = (w,i) => w.id + "-" + i;
+const doneCount = w => w.tasks.filter((_,i) => state.done[taskId(w,i)]).length;
+const weekDone = w => doneCount(w) === w.tasks.length;
+const phaseDone = p => p.weeks.every(weekDone);
+function xp(){ return Object.values(state.done).filter(Boolean).length * XP_TASK + state.days.length * XP_DAY; }
+function level(x){ return Math.floor(x / XP_LV) + 1; }
+function streak(){
+  const set = new Set(state.days); let d = new Date(); let n = 0;
+  if (!set.has(fmt(d))) d.setDate(d.getDate() - 1);
+  while (set.has(fmt(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+
+/* ---------- render ---------- */
+const $ = id => document.getElementById(id);
+function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function renderHud(){
+  const left = dayDiff(todayStr(), EXAM);
+  $("cd").innerHTML = left > 0 ? left + "<small>日</small>" : left === 0 ? "今日！" : "おつかれ！";
+  const x = xp(), lv = level(x), into = x % XP_LV;
+  $("lv").textContent = "Lv." + lv;
+  $("lvTitle").textContent = TITLES[Math.min(lv-1, TITLES.length-1)];
+  $("xpFill").style.width = (into / XP_LV * 100) + "%";
+  $("xpBar").setAttribute("aria-valuenow", into);
+  $("xpNow").textContent = x + " XP";
+  $("xpNext").textContent = "次のレベルまで " + (XP_LV - into) + " XP";
+  $("streak").textContent = "連続 " + streak() + "日";
+  $("days").textContent = "勉強した日 " + state.days.length + "日";
+  $("taskCount").textContent = "タスク " + Object.values(state.done).filter(Boolean).length + "/" + TASK_TOTAL;
+  const btn = $("todayBtn"), on = state.days.includes(todayStr());
+  btn.classList.toggle("done", on);
+  btn.innerHTML = on ? "今日もナイス！ 記録しました<small>もう一度タップで取り消し</small>" : "今日の1時間、やった！<small>タップで記録 ＋5 XP</small>";
+}
+function renderHeat(){
+  const h = $("heat"); h.textContent = "";
+  const start = pd(START), off = (start.getDay() + 6) % 7, t = todayStr(), set = new Set(state.days);
+  for (let i = 0; i < off; i++) h.appendChild(el("b","blank"));
+  const total = dayDiff(START, EXAM);
+  for (let i = 0; i <= total; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i); const s = fmt(d);
+    const b = el("b", (set.has(s) ? "on " : "") + (s === t ? "today " : "") + (s === EXAM ? "exam" : ""));
+    b.title = (d.getMonth()+1) + "/" + d.getDate() + (set.has(s) ? " 勉強した" : "");
+    h.appendChild(b);
+  }
+}
+function renderStickers(){
+  const box = $("stickers"); box.textContent = ""; let got = 0;
+  ALL_WEEKS.forEach((w,i) => {
+    const ok = weekDone(w); if (ok) got++;
+    const s = el("div", "stk" + (ok ? " got s" + (i % 5) + (w.id === "exam" ? " star" : "") : ""), ok ? (w.id === "exam" ? "★" : w.label.replace("WEEK ","W")) : "?");
+    s.title = w.label + (ok ? " クリア！" : " 未クリア");
+    box.appendChild(s);
+  });
+  $("stkCount").textContent = got + " / " + ALL_WEEKS.length;
+}
+function renderPhases(){
+  const root = $("phases"); root.textContent = ""; const t = todayStr();
+  PHASES.forEach(p => {
+    const sec = el("section","phase");
+    const head = el("div","ph-head " + p.c);
+    const top = el("div","ph-top"); top.append(el("span","ph-no","STAGE " + p.n), el("h2",null,p.name)); head.appendChild(top);
+    head.appendChild(el("p","ph-sub",p.sub));
+    const tot = p.weeks.reduce((n,w)=>n+w.tasks.length,0), dn = p.weeks.reduce((n,w)=>n+doneCount(w),0);
+    const pr = el("div","ph-prog"); const bar = el("div","bar"); const fill = el("i"); fill.style.width = (dn/tot*100)+"%"; bar.appendChild(fill);
+    pr.append(bar, el("span",null, dn + "/" + tot)); head.appendChild(pr);
+    const rw = el("div","reward"); const lab = el("label",null,"クリアしたら"); lab.htmlFor = "rw-" + p.key;
+    const inp = el("input"); inp.id = "rw-" + p.key; inp.dataset.rw = p.key; inp.maxLength = 60; inp.placeholder = p.ph; inp.value = state.rewards[p.key] || "";
+    rw.append(lab, inp); head.appendChild(rw);
+    sec.appendChild(head);
+
+    const ws = el("div","weeks");
+    p.weeks.forEach(w => {
+      const isNow = t >= w.s && t <= w.e, comp = weekDone(w);
+      const wk = el("div","week" + (isNow ? " now" : "") + (comp ? " complete" : ""));
+      const hd = el("div","wk-head"); hd.append(el("span","wk-label",w.label));
+      const sd = pd(w.s), ed = pd(w.e);
+      hd.append(el("span","wk-range", (sd.getMonth()+1)+"/"+sd.getDate() + (w.s===w.e ? "" : " – " + (ed.getMonth()+1)+"/"+ed.getDate())));
+      if (isNow) hd.append(el("span","now-tag","NOW"));
+      wk.appendChild(hd);
+      const box = el("div","box"); box.style.position = "relative";
+      if (comp) box.appendChild(el("span","stamp","CLEAR!"));
+      box.appendChild(el("p","wk-theme",w.theme));
+      const ul = el("ul","tasks");
+      w.tasks.forEach((tx,i) => {
+        const li = el("li","task"); const l = el("label"); const cb = el("input"); cb.type = "checkbox"; cb.id = taskId(w,i); cb.dataset.task = taskId(w,i);
+        cb.checked = !!state.done[taskId(w,i)];
+        l.append(cb, el("span",null,tx)); li.appendChild(l); ul.appendChild(li);
+      });
+      box.appendChild(ul); wk.appendChild(box); ws.appendChild(wk);
+    });
+    sec.appendChild(ws); root.appendChild(sec);
+  });
+}
+function renderGoal(){
+  $("rw-final").value = state.rewards.final || "";
+  const a = $("passArea"); a.textContent = "";
+  if (state.passed) {
+    a.appendChild(el("div","passed-banner","🎉 ITパスポート合格！ おめでとう！"));
+    const b = el("button","close-btn","もう一度お祝いする"); b.type = "button"; b.onclick = celebrateFinal; a.appendChild(b);
+  } else {
+    const b = el("button","pass-btn","合格した！"); b.type = "button"; b.onclick = () => { state.passed = true; save(); renderGoal(); celebrateFinal(); };
+    a.appendChild(b);
+  }
+}
+function render(){ renderHud(); renderHeat(); renderStickers(); renderPhases(); renderGoal(); }
+
+/* ---------- fx ---------- */
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cv = $("fx"), cx = cv.getContext("2d"); let parts = [], raf = 0;
+const COLORS = () => { const cs = getComputedStyle(document.documentElement); return ["--pink","--cyan","--orange","--mint","--violet"].map(v => cs.getPropertyValue(v).trim()); };
+function sizeCv(){ const r = devicePixelRatio || 1; cv.width = innerWidth * r; cv.height = innerHeight * r; cx.setTransform(r,0,0,r,0,0); }
+addEventListener("resize", sizeCv); sizeCv();
+function burst(x, y, n = 40, power = 9, up = true){
+  if (reduce) return; const cols = COLORS();
+  for (let i = 0; i < n; i++) {
+    const a = up ? -Math.PI/2 + (Math.random()-.5)*Math.PI*1.1 : Math.random()*Math.PI*2, v = power*(.4+Math.random()*.8);
+    parts.push({x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life:70+Math.random()*50, c:cols[i%cols.length], s:5+Math.random()*6, r:Math.random()*6, vr:(Math.random()-.5)*.4, sh:Math.random()<.5});
+  }
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function tick(){
+  cx.clearRect(0,0,innerWidth,innerHeight);
+  parts = parts.filter(p => p.life > 0);
+  for (const p of parts) {
+    p.vy += .22; p.vx *= .985; p.vy *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life--;
+    cx.save(); cx.globalAlpha = Math.min(1, p.life/30); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle = p.c;
+    if (p.sh) cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); else { cx.beginPath(); cx.arc(0,0,p.s/2.4,0,7); cx.fill(); }
+    cx.restore();
+  }
+  raf = parts.length ? requestAnimationFrame(tick) : 0;
+}
+function fireworks(sec = 3){
+  const end = Date.now() + sec*1000;
+  (function go(){ burst(innerWidth*(.15+Math.random()*.7), innerHeight*(.15+Math.random()*.4), 60, 7, false); if (Date.now() < end) setTimeout(go, 280); })();
+  burst(0, innerHeight, 80, 16); burst(innerWidth, innerHeight, 80, 16);
+}
+let toastT;
+function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
+
+function modal(build){
+  const m = $("modal"); m.textContent = ""; const card = el("div","modal-card"); build(card);
+  const c = el("button","close-btn","閉じる"); c.type = "button"; c.onclick = () => { m.hidden = true; }; card.appendChild(c);
+  m.appendChild(card); m.hidden = false; c.focus();
+}
+$("modal").addEventListener("click", e => { if (e.target.id === "modal") e.target.hidden = true; });
+addEventListener("keydown", e => { if (e.key === "Escape") $("modal").hidden = true; });
+
+function capsule(card, text, emptyMsg){
+  const cap = el("button","capsule"); cap.type = "button"; cap.setAttribute("aria-label","ご褒美カプセルを開ける");
+  cap.append(el("span","top"), el("span","btm"), el("span","q","?"));
+  const hint = el("p",null,"カプセルをタップしてオープン！");
+  cap.onclick = () => {
+    if (cap.classList.contains("open")) return; cap.classList.add("open");
+    const r = cap.getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 90, 12, false);
+    setTimeout(() => { cap.replaceWith(el("div","prize", text || emptyMsg)); hint.textContent = text ? "思いっきり楽しんでね！" : "下の入力欄で、いまのうちに決めておこう"; }, 450);
+  };
+  card.append(cap, hint);
+}
+function celebratePhase(p){
+  fireworks(2);
+  modal(card => {
+    card.append(el("div","big","STAGE " + p.n + "\nCLEAR!!"), el("p",null,"「" + p.name + "」を達成！ご褒美カプセルが届いたよ。"));
+    card.firstChild.style.whiteSpace = "pre-line";
+    capsule(card, state.rewards[p.key], "ご褒美がまだ決まってないみたい！");
+  });
+}
+function celebrateFinal(){
+  fireworks(5);
+  modal(card => {
+    card.append(el("div","big","合格\nおめでとう!!"), el("p",null,"約100日の積み重ねが実を結んだね。ITパスポート、ゲット！"));
+    card.firstChild.style.whiteSpace = "pre-line";
+    capsule(card, state.rewards.final, "ご褒美は今から決めてもOK！");
+  });
+}
+
+/* ---------- events ---------- */
+document.addEventListener("change", e => {
+  const id = e.target.dataset && e.target.dataset.task; if (!id) return;
+  const w = ALL_WEEKS.find(w => id.startsWith(w.id + "-") && /^\d+$/.test(id.slice(w.id.length+1)));
+  const lvBefore = level(xp()), wkBefore = weekDone(w), phBefore = phaseDone(w.phase);
+  state.done[id] = e.target.checked; if (!e.target.checked) delete state.done[id];
+  save();
+  const lvAfter = level(xp());
+  if (e.target.checked) {
+    const r = e.target.getBoundingClientRect(); burst(r.left + 12, r.top + 12, 22, 6);
+    if (!phBefore && phaseDone(w.phase)) { setTimeout(() => celebratePhase(w.phase), 350); }
+    else if (!wkBefore && weekDone(w)) { burst(innerWidth/2, innerHeight*.9, 90, 15); toast(w.label + " クリア！シールをゲットしたよ"); }
+    else if (lvAfter > lvBefore) toast("レベルアップ！ Lv." + lvAfter + "「" + TITLES[Math.min(lvAfter-1,9)] + "」");
+    else toast("+" + XP_TASK + " XP　ナイス！");
+  }
+  const y = scrollY; renderHud(); renderStickers(); renderPhases(); scrollTo(0, y);
+  const again = document.getElementById(id); if (again) again.focus({preventScroll:true});
+});
+document.addEventListener("input", e => {
+  const k = e.target.dataset && e.target.dataset.rw; if (!k) return;
+  state.rewards[k] = e.target.value; save();
+});
+$("todayBtn").addEventListener("click", e => {
+  const t = todayStr(), lvBefore = level(xp());
+  if (state.days.includes(t)) { state.days = state.days.filter(d => d !== t); toast("今日の記録を取り消しました"); }
+  else {
+    state.days = [...state.days, t];
+    const r = e.currentTarget.getBoundingClientRect(); burst(r.left + r.width/2, r.top, 50, 11);
+    const lv = level(xp()), s = streak();
+    toast(lv > lvBefore ? "レベルアップ！ Lv." + lv + "「" + TITLES[Math.min(lv-1,9)] + "」" : s >= 3 ? s + "日連続！その調子！" : "+" + XP_DAY + " XP　今日もえらい！");
+  }
+  save(); renderHud(); renderHeat();
+});
+
+render();
+initCloud();
+</script>
+</body>
+</html>
