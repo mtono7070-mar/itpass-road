@@ -1,0 +1,4 @@
+# 顧客情報・写真・制作物は GitHub に上げない（個人情報保護のため）
+clients/*
+!clients/.gitkeep
+__pycache__/
