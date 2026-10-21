@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F6F1EA">
+<title>hair salon NOA ご予約</title>
+<meta name="description" content="hair salon NOA のオンライン予約ページ。メニュー・スタイリスト・日時を選んで24時間ご予約いただけます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F6F1EA; --card:#FFFDF9; --ink:#2B2522; --muted:#7A6E66; --line:#E4D9CC;
+  --accent:#A65E46; --accent-soft:#F1E1D7; --on-accent:#FFFDF9; --ok:#4E7A5A; --off:#C9BEB3;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --sans:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1C1816; --card:#26211E; --ink:#F2EAE2; --muted:#B3A79D; --line:#3D3530;
+  --accent:#D8957C; --accent-soft:#3A2A23; --on-accent:#1C1816; --ok:#8FC09C; --off:#5A504A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#1C1816; --card:#26211E; --ink:#F2EAE2; --muted:#B3A79D; --line:#3D3530;
+  --accent:#D8957C; --accent-soft:#3A2A23; --on-accent:#1C1816; --ok:#8FC09C; --off:#5A504A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.8}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;line-height:1.4;text-wrap:balance}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.logo{font-family:var(--serif);font-size:20px;letter-spacing:.08em;text-decoration:none}
+.logo small{font-size:11px;color:var(--muted);letter-spacing:.2em;margin-right:6px}
+nav.links{display:flex;gap:18px;font-size:13px}
+nav.links a{text-decoration:none;color:var(--muted)}
+nav.links a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:72px 0 56px;text-align:center}
+.hero .eyebrow{font-size:12px;letter-spacing:.3em;color:var(--accent)}
+.hero h1{font-size:clamp(28px,6vw,44px);margin:14px 0 16px;letter-spacing:.06em}
+.hero p{color:var(--muted);margin:0 auto 28px;max-width:30em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:12px 28px;border-radius:999px;font-weight:500;text-decoration:none;letter-spacing:.06em;transition:opacity .15s}
+.btn:hover{opacity:.88}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+section.block{padding:40px 0;scroll-margin-top:56px}
+section.block > .wrap > h2{font-size:24px;margin-bottom:6px;letter-spacing:.06em}
+.sub{color:var(--muted);font-size:13px;margin:0 0 24px}
+
+/* booking */
+.booking{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.steps{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.steps li{list-style:none;flex:1;min-width:84px;padding:12px 6px;text-align:center;font-size:12px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.steps li b{display:block;font-family:var(--serif);font-size:16px;font-weight:500}
+.steps li.on{color:var(--accent);border-bottom-color:var(--accent)}
+.steps li.done{color:var(--ink)}
+.steps{margin:0;padding:0}
+.pane{padding:24px}
+.pane h3{font-size:18px;margin-bottom:16px}
+
+.menu-cat{font-size:12px;letter-spacing:.2em;color:var(--muted);margin:20px 0 8px}
+.menu-cat:first-of-type{margin-top:0}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .check{flex:none;width:20px;height:20px;border:1px solid var(--muted);border-radius:5px;display:grid;place-items:center;font-size:13px;color:var(--on-accent)}
+.opt.radio .check{border-radius:50%}
+.opt[aria-pressed="true"] .check{background:var(--accent);border-color:var(--accent)}
+.opt .body{flex:1;min-width:0}
+.opt .name{font-weight:500}
+.opt .desc{font-size:12px;color:var(--muted);line-height:1.6}
+.opt .meta{text-align:right;font-size:13px;white-space:nowrap}
+.opt .meta small{display:block;color:var(--muted);font-size:11px}
+.avatar{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:18px;background:var(--accent-soft);color:var(--accent)}
+
+.summary-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 24px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--accent-soft) 45%,var(--card))}
+.summary-bar .total{font-size:13px;color:var(--muted)}
+.summary-bar .total strong{font-family:var(--serif);font-size:20px;color:var(--ink);font-weight:500;margin-left:4px}
+.summary-bar .actions{display:flex;gap:8px;margin-left:auto}
+.summary-bar .btn{padding:10px 22px}
+
+/* date picker */
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scroll-snap-type:x proximity}
+.day{flex:none;width:58px;padding:8px 0;border:1px solid var(--line);border-radius:10px;background:transparent;text-align:center;line-height:1.3;scroll-snap-align:start}
+.day small{display:block;font-size:11px;color:var(--muted)}
+.day b{font-family:var(--serif);font-size:18px;font-weight:500}
+.day.sat small{color:#4A74B8}.day.sun small{color:#C0504D}
+.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.day[aria-pressed="true"] small{color:var(--on-accent)}
+.day:disabled{opacity:.4;cursor:not-allowed}
+.day:disabled small:last-child::after{content:"休"}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.slot{padding:9px 0;border:1px solid var(--line);border-radius:8px;background:transparent;font-size:14px}
+.slot:not(:disabled):hover{border-color:var(--accent)}
+.slot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.slot:disabled{color:var(--off);text-decoration:line-through;cursor:not-allowed}
+.legend{font-size:12px;color:var(--muted);margin-top:12px}
+.empty{color:var(--muted);font-size:14px;padding:16px 0}
+
+/* form */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;margin-bottom:4px}
+.field label .req{color:var(--accent);font-size:11px;margin-left:6px}
+.field input,.field textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.field input:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.field .err{font-size:12px;color:#C0504D;min-height:1em}
+.field.radio-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.field.radio-row label{display:inline-flex;gap:6px;align-items:center;margin:0}
+
+/* confirm */
+dl.conf{display:grid;grid-template-columns:7em 1fr;gap:10px 16px;margin:0}
+dl.conf dt{color:var(--muted);font-size:13px}
+dl.conf dd{margin:0}
+.note{font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px 14px;margin-top:20px}
+
+.complete{text-align:center;padding:40px 24px}
+.complete .mark{width:56px;height:56px;border-radius:50%;background:var(--ok);color:var(--card);display:grid;place-items:center;margin:0 auto 16px;font-size:26px}
+.complete .no{font-family:var(--serif);font-size:24px;letter-spacing:.1em;margin:8px 0 20px}
+
+/* my bookings */
+.mylist{display:flex;flex-direction:column;gap:12px}
+.mycard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.mycard .when{font-family:var(--serif);font-size:17px}
+.mycard .info{flex:1;min-width:200px;font-size:13px;color:var(--muted)}
+.mycard .info b{color:var(--ink);font-weight:500}
+.mycard.cancelled{opacity:.55}
+.tag{display:inline-block;font-size:11px;border:1px solid currentColor;border-radius:4px;padding:0 6px;margin-left:6px}
+.btn.small{padding:6px 16px;font-size:13px}
+
+/* info */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.info-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.info-card h3{font-size:16px;margin-bottom:8px}
+.info-card p,.info-card table{font-size:14px;margin:0;color:var(--muted)}
+.info-card td{padding:2px 12px 2px 0}
+
+footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:13px;z-index:20}
+
+@media (max-width:560px){
+  nav.links{display:none}
+  .pane{padding:20px 16px}
+  .summary-bar{padding:14px 16px}
+  .summary-bar .actions{width:100%}
+  .summary-bar .actions .btn{flex:1}
+  dl.conf{grid-template-columns:5.5em 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#"><small>hair salon</small>NOA</a>
+    <nav class="links">
+      <a href="#book">ご予約</a>
+      <a href="#mine">予約の確認</a>
+      <a href="#info">店舗情報</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="eyebrow">ONLINE RESERVATION</div>
+    <h1>髪と、ひと息つく時間を。</h1>
+    <p>メニュー・スタイリスト・日時を選ぶだけ。24時間いつでもご予約いただけます。</p>
+    <a class="btn" href="#book">予約する</a>
+  </div>
+
+  <section class="block" id="book">
+    <div class="wrap">
+      <h2>ご予約</h2>
+      <p class="sub">4つのステップでご予約が完了します。</p>
+
+      <div class="booking">
+        <ol class="steps" id="steps">
+          <li data-step="0"><b>1</b>メニュー</li>
+          <li data-step="1"><b>2</b>スタイリスト</li>
+          <li data-step="2"><b>3</b>日時</li>
+          <li data-step="3"><b>4</b>お客様情報</li>
+          <li data-step="4"><b>5</b>確認</li>
+        </ol>
+
+        <div id="panes">
+          <div class="pane" data-pane="0">
+            <h3>メニューを選択（複数可）</h3>
+            <div id="menuList"></div>
+          </div>
+
+          <div class="pane" data-pane="1" hidden>
+            <h3>スタイリストを選択</h3>
+            <div id="staffList"></div>
+          </div>
+
+          <div class="pane" data-pane="2" hidden>
+            <h3>日時を選択</h3>
+            <div class="days" id="days"></div>
+            <div class="slots" id="slots"></div>
+            <p class="legend">選択中の施術時間：<span id="durLabel"></span>　／　取り消し線は予約済みの時間です</p>
+          </div>
+
+          <div class="pane" data-pane="3" hidden>
+            <h3>お客様情報</h3>
+            <form id="custForm" novalidate>
+              <div class="field">
+                <label for="fName">お名前<span class="req">必須</span></label>
+                <input id="fName" name="name" autocomplete="name" placeholder="山田 花子">
+                <div class="err" data-err="name"></div>
+              </div>
+              <div class="field">
+                <label for="fTel">電話番号<span class="req">必須</span></label>
+                <input id="fTel" name="tel" type="tel" autocomplete="tel" inputmode="tel" placeholder="090-1234-5678">
+                <div class="err" data-err="tel"></div>
+              </div>
+              <div class="field">
+                <label for="fMail">メールアドレス<span class="req">必須</span></label>
+                <input id="fMail" name="email" type="email" autocomplete="email" placeholder="hanako@example.com">
+                <div class="err" data-err="email"></div>
+              </div>
+              <div class="field radio-row">
+                <span style="font-size:13px">ご来店</span>
+                <label><input type="radio" name="visit" value="初めて" checked> 初めて</label>
+                <label><input type="radio" name="visit" value="2回目以降"> 2回目以降</label>
+              </div>
+              <div class="field">
+                <label for="fNote">ご要望・お悩みなど</label>
+                <textarea id="fNote" name="note" rows="3" placeholder="例：肩につくくらいの長さにしたい／頭皮が敏感です"></textarea>
+              </div>
+            </form>
+          </div>
+
+          <div class="pane" data-pane="4" hidden>
+            <h3>ご予約内容の確認</h3>
+            <dl class="conf" id="confList"></dl>
+            <p class="note">キャンセル・変更は前日までにお願いいたします。当日のキャンセルはお電話にてご連絡ください。</p>
+          </div>
+
+          <div class="complete" data-pane="5" hidden>
+            <div class="mark">✓</div>
+            <h3>ご予約が完了しました</h3>
+            <div class="no" id="doneNo"></div>
+            <p class="sub" id="doneText"></p>
+            <button class="btn ghost" id="again" type="button">続けて予約する</button>
+          </div>
+        </div>
+
+        <div class="summary-bar" id="bar">
+          <div class="total">合計<strong id="totalPrice">¥0</strong> <span id="totalDur"></span></div>
+          <div class="actions">
+            <button class="btn ghost" id="back" type="button">戻る</button>
+            <button class="btn" id="next" type="button">次へ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="mine">
+    <div class="wrap">
+      <h2>予約の確認・キャンセル</h2>
+      <p class="sub">この端末でご予約いただいた内容を表示しています。</p>
+      <div class="mylist" id="myList"></div>
+    </div>
+  </section>
+
+  <section class="block" id="info">
+    <div class="wrap">
+      <h2>店舗情報</h2>
+      <p class="sub">ご来店をお待ちしております。</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>営業時間</h3>
+          <table>
+            <tr><td>平日</td><td>10:00 – 20:00</td></tr>
+            <tr><td>土日祝</td><td>9:00 – 19:00</td></tr>
+            <tr><td>定休日</td><td>毎週火曜日</td></tr>
+          </table>
+        </div>
+        <div class="info-card">
+          <h3>アクセス</h3>
+          <p>〒000-0000<br>東京都○○区○○ 1-2-3 NOAビル 2F<br>○○駅 東口より徒歩3分</p>
+        </div>
+        <div class="info-card">
+          <h3>お問い合わせ</h3>
+          <p>TEL 03-0000-0000<br>受付 10:00 – 19:00（火曜除く）</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© hair salon NOA</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  // ---- data ----
+  const MENUS = [
+    {cat:"CUT", items:[
+      {id:"cut", name:"カット", desc:"シャンプー・ブロー込み", price:5500, min:60},
+      {id:"cut-s", name:"前髪カット", desc:"前髪のみ", price:1100, min:15},
+    ]},
+    {cat:"COLOR", items:[
+      {id:"color", name:"カラー", desc:"リタッチ〜全体染め", price:6600, min:90},
+      {id:"highlight", name:"ハイライト", desc:"デザインカラー", price:8800, min:120},
+    ]},
+    {cat:"PERM / STRAIGHT", items:[
+      {id:"perm", name:"デジタルパーマ", desc:"ゆるふわ〜しっかりカールまで", price:11000, min:120},
+      {id:"straight", name:"縮毛矯正", desc:"自然なストレートに", price:16500, min:150},
+    ]},
+    {cat:"CARE", items:[
+      {id:"tr", name:"トリートメント", desc:"髪質改善・集中補修", price:4400, min:30},
+      {id:"spa", name:"ヘッドスパ", desc:"炭酸泉で頭皮すっきり", price:3300, min:30},
+    ]},
+  ];
+  const MENU_BY_ID = Object.fromEntries(MENUS.flatMap(c => c.items).map(m => [m.id, m]));
+
+  const STAFF = [
+    {id:"any", name:"指名なし", role:"空いているスタイリストが担当します", fee:0},
+    {id:"aoi", name:"佐藤 あおい", role:"店長／カット・ショートが得意", fee:1100},
+    {id:"ren", name:"高橋 蓮", role:"トップスタイリスト／カラー", fee:550},
+    {id:"mio", name:"中村 美緒", role:"スタイリスト／パーマ・髪質改善", fee:0},
+  ];
+  const REAL_STAFF = STAFF.filter(s => s.id !== "any");
+  const STAFF_BY_ID = Object.fromEntries(STAFF.map(s => [s.id, s]));
+
+  const CLOSED_DOW = 2; // Tuesday
+  const DAYS_AHEAD = 21;
+  const STEP_MIN = 30;
+  const hoursFor = d => (d.getDay() === 0 || d.getDay() === 6 || isHoliday(d)) ? [9, 19] : [10, 20];
+  function isHoliday(){ return false; } // 祝日判定は必要に応じて追加
+
+  const KEY = "noa-bookings-v1";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+  const save = list => { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {} };
+
+  // 既存予約（他のお客様）のダミー：日付×スタッフごとに決定的に生成
+  function hash(s){ let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function seededBusy(dateKey, staffId, open, close){
+    const busy = [];
+    const n = hash(dateKey + staffId) % 4 + 1;
+    for (let i = 0; i < n; i++){
+      const h = hash(dateKey + staffId + i);
+      const start = open * 60 + (h % ((close - open) * 2 - 2)) * 30;
+      const len = [60, 90, 120][h % 3];
+      busy.push([start, Math.min(start + len, close * 60)]);
+    }
+    return busy;
+  }
+  function busyFor(dateKey, staffId, open, close){
+    const mine = load().filter(b => b.status !== "cancelled" && b.date === dateKey && b.staff === staffId)
+      .map(b => [b.start, b.start + b.duration]);
+    return seededBusy(dateKey, staffId, open, close).concat(mine);
+  }
+  const overlaps = (a, b, list) => list.some(([s, e]) => a < e && s < b);
+
+  // ---- helpers ----
+  const $ = s => document.querySelector(s);
+  const yen = n => "¥" + n.toLocaleString("ja-JP");
+  const pad = n => String(n).padStart(2, "0");
+  const toKey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const fromKey = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
+  const hm = min => `${Math.floor(min/60)}:${pad(min%60)}`;
+  const DOW = ["日","月","火","水","木","金","土"];
+  const fmtDate = k => { const d = fromKey(k); return `${d.getMonth()+1}月${d.getDate()}日（${DOW[d.getDay()]}）`; };
+  const fmtDur = m => m >= 60 ? `${Math.floor(m/60)}時間${m%60 ? (m%60)+"分" : ""}` : `${m}分`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2400); }
+
+  // ---- state ----
+  const state = { step:0, menus:new Set(), staff:"any", date:null, start:null, assigned:null, cust:null };
+  const duration = () => [...state.menus].reduce((s, id) => s + MENU_BY_ID[id].min, 0);
+  const price = () => [...state.menus].reduce((s, id) => s + MENU_BY_ID[id].price, 0) + (STAFF_BY_ID[state.staff]?.fee || 0);
+
+  // ---- render: menus ----
+  function renderMenus(){
+    $("#menuList").innerHTML = MENUS.map(c => `
+      <div class="menu-cat">${c.cat}</div>
+      ${c.items.map(m => `
+        <button type="button" class="opt" data-menu="${m.id}" aria-pressed="${state.menus.has(m.id)}">
+          <span class="check">✓</span>
+          <span class="body"><span class="name">${m.name}</span><span class="desc"><br>${m.desc}</span></span>
+          <span class="meta">${yen(m.price)}<small>${fmtDur(m.min)}</small></span>
+        </button>`).join("")}
+    `).join("");
+  }
+  $("#menuList").addEventListener("click", e => {
+    const b = e.target.closest("[data-menu]"); if (!b) return;
+    const id = b.dataset.menu;
+    state.menus.has(id) ? state.menus.delete(id) : state.menus.add(id);
+    b.setAttribute("aria-pressed", state.menus.has(id));
+    state.start = null;
+    updateBar();
+  });
+
+  // ---- render: staff ----
+  function renderStaff(){
+    $("#staffList").innerHTML = STAFF.map(s => `
+      <button type="button" class="opt radio" data-staff="${s.id}" aria-pressed="${state.staff === s.id}">
+        <span class="avatar">${s.id === "any" ? "—" : s.name[0]}</span>
+        <span class="body"><span class="name">${s.name}</span><span class="desc"><br>${s.role}</span></span>
+        <span class="meta">${s.fee ? "指名料 " + yen(s.fee) : "指名料なし"}</span>
+      </button>`).join("");
+  }
+  $("#staffList").addEventListener("click", e => {
+    const b = e.target.closest("[data-staff]"); if (!b) return;
+    state.staff = b.dataset.staff; state.start = null;
+    renderStaff(); updateBar();
+  });
+
+  // ---- render: dates & slots ----
+  function availableStaffAt(dateKey, start, dur){
+    const d = fromKey(dateKey); const [open, close] = hoursFor(d);
+    const pool = state.staff === "any" ? REAL_STAFF : [STAFF_BY_ID[state.staff]];
+    return pool.filter(s => !overlaps(start, start + dur, busyFor(dateKey, s.id, open, close)));
+  }
+  function slotsFor(dateKey){
+    const d = fromKey(dateKey); const [open, close] = hoursFor(d); const dur = duration();
+    const now = new Date(); const isToday = toKey(now) === dateKey;
+    const nowMin = now.getHours() * 60 + now.getMinutes() + 60; // 当日は1時間後から
+    const out = [];
+    for (let t = open * 60; t + dur <= close * 60; t += STEP_MIN){
+      const ok = !(isToday && t < nowMin) && availableStaffAt(dateKey, t, dur).length > 0;
+      out.push({t, ok});
+    }
+    return out;
+  }
+  function renderDays(){
+    const today = new Date(); today.setHours(0,0,0,0);
+    let html = "";
+    for (let i = 0; i < DAYS_AHEAD; i++){
+      const d = new Date(today); d.setDate(today.getDate() + i);
+      const k = toKey(d); const closed = d.getDay() === CLOSED_DOW;
+      const cls = d.getDay() === 0 ? "sun" : d.getDay() === 6 ? "sat" : "";
+      html += `<button type="button" class="day ${cls}" data-day="${k}" ${closed ? "disabled" : ""} aria-pressed="${state.date === k}">
+        <small>${i === 0 ? "今日" : (d.getMonth()+1) + "/"}</small><b>${d.getDate()}</b><small>${closed ? "" : DOW[d.getDay()]}</small></button>`;
+    }
+    $("#days").innerHTML = html;
+    if (!state.date){
+      const first = [...document.querySelectorAll(".day:not(:disabled)")].find(b => slotsFor(b.dataset.day).some(s => s.ok));
+      if (first){ state.date = first.dataset.day; first.setAttribute("aria-pressed", "true"); }
+    }
+    renderSlots();
+  }
+  function renderSlots(){
+    $("#durLabel").textContent = fmtDur(duration());
+    if (!state.date){ $("#slots").innerHTML = `<p class="empty">日付を選択してください。</p>`; return; }
+    const list = slotsFor(state.date);
+    if (!list.some(s => s.ok)){ $("#slots").innerHTML = `<p class="empty">この日は空きがありません。別の日をお選びください。</p>`; return; }
+    $("#slots").innerHTML = list.map(s =>
+      `<button type="button" class="slot" data-slot="${s.t}" ${s.ok ? "" : "disabled"} aria-pressed="${state.start === s.t}">${hm(s.t)}</button>`).join("");
+  }
+  $("#days").addEventListener("click", e => {
+    const b = e.target.closest("[data-day]"); if (!b || b.disabled) return;
+    state.date = b.dataset.day; state.start = null;
+    document.querySelectorAll(".day").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderSlots(); updateBar();
+  });
+  $("#slots").addEventListener("click", e => {
+    const b = e.target.closest("[data-slot]"); if (!b || b.disabled) return;
+    state.start = Number(b.dataset.slot);
+    document.querySelectorAll(".slot").forEach(x => x.setAttribute("aria-pressed", x === b));
+    updateBar();
+  });
+
+  // ---- customer form ----
+  function validate(){
+    const f = $("#custForm"); const v = Object.fromEntries(new FormData(f));
+    const errs = {};
+    if (!v.name.trim()) errs.name = "お名前を入力してください";
+    if (!/^0\d{1,4}-?\d{1,4}-?\d{3,4}$/.test(v.tel.trim())) errs.tel = "電話番号を正しく入力してください（例：090-1234-5678）";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email.trim())) errs.email = "メールアドレスを正しく入力してください";
+    f.querySelectorAll("[data-err]").forEach(el => el.textContent = errs[el.dataset.err] || "");
+    if (Object.keys(errs).length){ f.querySelector(`[name="${Object.keys(errs)[0]}"]`).focus(); return null; }
+    return {name:v.name.trim(), tel:v.tel.trim(), email:v.email.trim(), visit:v.visit, note:v.note.trim()};
+  }
+
+  // ---- confirm ----
+  function renderConfirm(){
+    const staffLabel = state.staff === "any" ? `指名なし（担当：${STAFF_BY_ID[state.assigned].name}）` : STAFF_BY_ID[state.staff].name;
+    const rows = [
+      ["日時", `${fmtDate(state.date)} ${hm(state.start)} 〜 ${hm(state.start + duration())}`],
+      ["メニュー", [...state.menus].map(id => MENU_BY_ID[id].name).join("、")],
+      ["スタイリスト", staffLabel],
+      ["料金（税込）", yen(price())],
+      ["お名前", state.cust.name + " 様"],
+      ["電話番号", state.cust.tel],
+      ["メール", state.cust.email],
+      ["ご来店", state.cust.visit],
+    ];
+    if (state.cust.note) rows.push(["ご要望", state.cust.note]);
+    $("#confList").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+  }
+
+  // ---- step flow ----
+  const NEXT_LABEL = ["スタイリストを選ぶ", "日時を選ぶ", "お客様情報へ", "確認へ進む", "予約を確定する"];
+  function canNext(){
+    if (state.step === 0) return state.menus.size > 0;
+    if (state.step === 2) return state.date && state.start !== null;
+    return true;
+  }
+  function updateBar(){
+    $("#totalPrice").textContent = yen(price());
+    $("#totalDur").textContent = state.menus.size ? `／ ${fmtDur(duration())}` : "";
+    $("#next").disabled = !canNext();
+    $("#next").textContent = NEXT_LABEL[state.step] || "次へ";
+    $("#back").style.visibility = state.step === 0 ? "hidden" : "visible";
+  }
+  function go(step, scroll = true){
+    state.step = step;
+    document.querySelectorAll("[data-pane]").forEach(p => p.hidden = Number(p.dataset.pane) !== step);
+    document.querySelectorAll("#steps li").forEach(li => {
+      const n = Number(li.dataset.step);
+      li.classList.toggle("on", n === step); li.classList.toggle("done", n < step);
+    });
+    $("#bar").hidden = step === 5;
+    if (step === 1) renderStaff();
+    if (step === 2) renderDays();
+    if (step === 4) renderConfirm();
+    updateBar();
+    if (scroll) $("#book").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  $("#back").addEventListener("click", () => go(Math.max(0, state.step - 1)));
+  $("#next").addEventListener("click", () => {
+    if (!canNext()) return;
+    if (state.step === 2){
+      const avail = availableStaffAt(state.date, state.start, duration());
+      if (!avail.length){ toast("その時間は埋まってしまいました"); renderSlots(); return; }
+      state.assigned = state.staff === "any" ? avail[hash(state.date + state.start) % avail.length].id : state.staff;
+    }
+    if (state.step === 3){ const c = validate(); if (!c) return; state.cust = c; }
+    if (state.step === 4) return confirmBooking();
+    go(state.step + 1);
+  });
+
+  function confirmBooking(){
+    // 確定直前に再チェック
+    const d = fromKey(state.date); const [open, close] = hoursFor(d);
+    if (overlaps(state.start, state.start + duration(), busyFor(state.date, state.assigned, open, close))){
+      toast("申し訳ありません。その時間は埋まってしまいました"); state.start = null; return go(2);
+    }
+    const no = "NOA-" + Date.now().toString(36).toUpperCase().slice(-6);
+    const booking = {
+      no, date:state.date, start:state.start, duration:duration(),
+      menus:[...state.menus], staff:state.assigned, nominated:state.staff !== "any",
+      price:price(), cust:state.cust, status:"confirmed", createdAt:new Date().toISOString(),
+    };
+    const list = load(); list.push(booking); save(list);
+    $("#doneNo").textContent = no;
+    $("#doneText").innerHTML = `${fmtDate(booking.date)} ${hm(booking.start)}〜 でご予約を承りました。<br>${esc(booking.cust.email)} 宛に確認メールをお送りします。`;
+    go(5);
+    renderMine();
+  }
+  $("#again").addEventListener("click", () => {
+    Object.assign(state, {menus:new Set(), staff:"any", date:null, start:null, assigned:null, cust:null});
+    $("#custForm").reset();
+    renderMenus(); go(0);
+  });
+
+  // ---- my bookings ----
+  function renderMine(){
+    const todayKey = toKey(new Date());
+    const list = load().filter(b => b.date >= todayKey).sort((a, b) => (a.date + pad(a.start)).localeCompare(b.date + pad(b.start)));
+    if (!list.length){ $("#myList").innerHTML = `<p class="empty">現在ご予約はありません。</p>`; return; }
+    $("#myList").innerHTML = list.map(b => {
+      const cancelled = b.status === "cancelled";
+      const canCancel = !cancelled && b.date > todayKey; // 前日まで
+      return `<div class="mycard ${cancelled ? "cancelled" : ""}">
+        <div class="info">
+          <div class="when">${fmtDate(b.date)} ${hm(b.start)}〜${cancelled ? '<span class="tag">キャンセル済み</span>' : ""}</div>
+          <b>${b.menus.map(id => MENU_BY_ID[id]?.name || id).join("、")}</b><br>
+          担当：${esc(STAFF_BY_ID[b.staff]?.name || "")}${b.nominated ? "（指名）" : ""}　${yen(b.price)}<br>
+          予約番号 ${esc(b.no)}
+        </div>
+        ${canCancel ? `<button type="button" class="btn ghost small" data-cancel="${esc(b.no)}">キャンセル</button>`
+          : (!cancelled ? `<span class="sub" style="margin:0">当日のキャンセルはお電話で</span>` : "")}
+      </div>`;
+    }).join("");
+  }
+  $("#myList").addEventListener("click", e => {
+    const b = e.target.closest("[data-cancel]"); if (!b) return;
+    if (!confirm("この予約をキャンセルしますか？")) return;
+    const list = load(); const t = list.find(x => x.no === b.dataset.cancel);
+    if (t){ t.status = "cancelled"; save(list); }
+    renderMine(); toast("キャンセルしました");
+  });
+
+  // ---- init ----
+  renderMenus(); renderMine(); go(0, false);
+})();
+</script>
+</body>
+</html>
