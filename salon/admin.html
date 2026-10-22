@@ -173,7 +173,7 @@ header.top .spacer{flex:1}
 </head>
 <body>
 
-<div class="sample">これは管理画面の見本です。表示している予約は仮のデータで、操作しても保存されません。</div>
+<div class="sample" id="storeNote">予約ページで入った予約がここに表示されます。</div>
 
 <header class="top">
   <div class="wrap">
@@ -256,6 +256,7 @@ header.top .spacer{flex:1}
 
 <div class="toast" id="toast" hidden></div>
 
+<script src="store.js"></script>
 <script>
 (() => {
   // 予約ページ（index.html）と同じメニュー
@@ -300,56 +301,16 @@ header.top .spacer{flex:1}
   const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
   const TODAY = toKey(new Date());
 
-  // ---- 仮のデータ ----
-  const NAMES = ["佐藤 美咲","鈴木 健太","高橋 由美","田中 涼子","伊藤 大輔","渡辺 彩","山本 直子","中村 拓也","小林 恵","加藤 さくら","吉田 真理","山田 翔","松本 香織","井上 聡","木村 麻衣"];
-  const NOTES = ["", "", "", "冷え性で足先が冷たいです", "", "ゴルフ後の疲れをとりたい", "", "汗をかきにくい体質です", "", "前回より少し温度低めで"];
-  const bookings = [];
-  const blocks = [];
-  function seedDay(k){
-    let t = OPEN + (hash(k) % 3) * 30;
-    let i = 0;
-    while (true){
-      const h = hash(k + ":" + i);
-      const course = COURSES[h % COURSES.length];
-      const menus = [course.id];
-      const first = h % 5 === 0;
-      if (first) menus.push("opt-cannula");
-      if (h % 7 === 1) menus.push("opt-herb");
-      if (h % 9 === 2) menus.push("opt-tansan");
-      const dur = menus.reduce((s, id) => s + MENU[id].min, 0);
-      if (t + dur > CLOSE) break;
-      if (h % 4 !== 0){ // 4枠に1つくらいは空ける
-        const past = k < TODAY || (k === TODAY && t + dur <= nowMin());
-        bookings.push({
-          no:"YUKI-" + (h % 1000000).toString(36).toUpperCase().padStart(4, "0"),
-          date:k, start:t, duration:dur, menus,
-          price:menus.reduce((s, id) => s + MENU[id].price, 0),
-          cust:{name:NAMES[h % NAMES.length], tel:`090-${pad(h % 100)}${pad((h >> 3) % 100)}-${pad((h >> 5) % 100)}${pad((h >> 7) % 100)}`, email:"sample@example.com", visit:first ? "初めて" : "2回目以降", note:NOTES[h % NOTES.length]},
-          status: h % 11 === 3 ? "cancelled" : past ? "done" : "confirmed",
-          via: h % 6 === 0 ? "電話" : "Web",
-          createdAt: addDays(k, -((h % 9) + 1)),
-          memo:"",
-        });
-      }
-      t += dur + 30 * (h % 2);
-      i++;
-    }
-  }
-  for (let i = -7; i <= 21; i++) seedDay(addDays(TODAY, i));
-  blocks.push({date:addDays(TODAY, 3), from:780, to:900, reason:"機器メンテナンス"});
-
-  // この端末で予約ページから入った予約も合わせて表示する
-  try {
-    for (const b of JSON.parse(localStorage.getItem("noa-bookings-v1")) || []){
-      bookings.push({...b, via:"Web（この端末）", memo:""});
-    }
-  } catch {}
+  const Store = window.YukiStore;
+  const bookings = () => Store.bookings;
+  const blocks = () => Store.blocks;
+  const fail = () => toast("保存できませんでした。時間をおいてもう一度お試しください");
 
   // ---- state ----
   let day = TODAY;
   let selected = null;
 
-  const dayBookings = k => bookings.filter(b => b.date === k).sort((a, b) => a.start - b.start);
+  const dayBookings = k => bookings().filter(b => b.date === k).sort((a, b) => a.start - b.start);
   const active = b => b.status !== "cancelled";
 
   // ---- render ----
@@ -372,7 +333,7 @@ header.top .spacer{flex:1}
     const act = list.filter(active);
     const sales = act.reduce((s, b) => s + b.price, 0);
     const used = act.reduce((s, b) => s + b.duration, 0);
-    const blocked = blocks.filter(b => b.date === day).reduce((s, b) => s + (b.to - b.from), 0);
+    const blocked = blocks().filter(b => b.date === day).reduce((s, b) => s + (b.to - b.from), 0);
     const rate = Math.round(used / Math.max(1, CLOSE - OPEN - blocked) * 100);
     const firsts = act.filter(b => b.cust.visit === "初めて").length;
     const cancels = list.length - act.length;
@@ -388,9 +349,9 @@ header.top .spacer{flex:1}
     for (let t = OPEN; t <= CLOSE; t += 30){
       html += `<div class="hr ${t % 60 ? "half" : ""}" style="top:${(t - OPEN) * PX}px">${t % 60 ? "" : `<span>${hm(t)}</span>`}</div>`;
     }
-    for (const b of blocks.filter(b => b.date === day)){
-      html += `<div class="ev blk" style="top:${(b.from - OPEN) * PX}px;height:${(b.to - b.from) * PX}px">
-        <div class="t">${hm(b.from)}〜${hm(b.to)}</div><div class="n">受付停止</div><div class="m">${esc(b.reason)}</div></div>`;
+    for (const b of blocks().filter(b => b.date === day)){
+      html += `<button type="button" class="ev blk" data-block="${esc(b.id)}" title="タップで受付停止を解除" style="top:${(b.from - OPEN) * PX}px;height:${(b.to - b.from) * PX}px">
+        <div class="t">${hm(b.from)}〜${hm(b.to)}</div><div class="n">受付停止</div><div class="m">${esc(b.reason)}</div></button>`;
     }
     for (const b of dayBookings(day)){
       const h = Math.max(b.duration * PX - 2, 28);
@@ -420,12 +381,12 @@ header.top .spacer{flex:1}
   }
 
   function renderDetail(){
-    const b = bookings.find(x => x.no === selected);
+    const b = bookings().find(x => x.no === selected);
     $("#detailPanel").hidden = !b;
     if (!b) return;
     $("#detail").innerHTML = `
       <h3>${esc(b.cust.name)} 様</h3>
-      <div class="sub">予約番号 ${esc(b.no)}・${esc(b.via)}で受付（${fmtDate(b.createdAt.slice(0,10))}）</div>
+      <div class="sub">予約番号 ${esc(b.no)}・${esc(b.via || "Web")}で受付（${fmtDate(toKey(new Date(b.createdAt)))}）</div>
       <dl>
         <dt>日時</dt><dd>${fmtDate(b.date)} ${hm(b.start)}〜${hm(b.start + b.duration)}</dd>
         <dt>状態</dt><dd><span class="pill ${b.status}">${STATUS[b.status]}</span></dd>
@@ -436,7 +397,7 @@ header.top .spacer{flex:1}
           ${b.menus.map(id => `<li><span>${esc(MENU[id]?.name || id)}</span><span>${yen(MENU[id]?.price || 0)}</span></li>`).join("")}
           <li class="total"><span>合計</span><span>${yen(b.price)}</span></li></ul></dd>
         ${b.cust.note ? `<dt>ご要望</dt><dd><div class="note">${esc(b.cust.note)}</div></dd>` : ""}
-        <dt>お店用メモ</dt><dd><textarea class="memo" id="memo" rows="2" placeholder="お客様には表示されません">${esc(b.memo)}</textarea></dd>
+        <dt>お店用メモ</dt><dd><textarea class="memo" id="memo" rows="2" placeholder="お客様には表示されません">${esc(b.memo || "")}</textarea></dd>
       </dl>
       <div class="actions">
         ${b.status === "confirmed" ? `<button class="btn ok" data-act="done" type="button">来店済みにする</button>
@@ -459,24 +420,27 @@ header.top .spacer{flex:1}
     selected = no; render();
     if (matchMedia("(max-width:860px)").matches) $("#detailPanel").scrollIntoView({behavior:"smooth", block:"start"});
   }
-  $("#tl").onclick = e => { const b = e.target.closest("[data-no]"); if (b) select(b.dataset.no); };
+  $("#tl").onclick = e => {
+    const k = e.target.closest("[data-block]");
+    if (k){ if (confirm("この受付停止を解除しますか？")) Store.removeBlock(k.dataset.block).then(() => toast("受付停止を解除しました"), fail); return; }
+    const b = e.target.closest("[data-no]"); if (b) select(b.dataset.no);
+  };
   $("#list").onclick = e => { const b = e.target.closest("[data-no]"); if (b) select(b.dataset.no); };
   $("#closeDetail").onclick = () => { selected = null; render(); };
   $("#detail").addEventListener("input", e => {
-    if (e.target.id === "memo"){ const b = bookings.find(x => x.no === selected); if (b) b.memo = e.target.value; }
+    if (e.target.id !== "memo") return;
+    const no = selected, memo = e.target.value;
+    clearTimeout(memoTimer); // 入力が止まってから保存
+    memoTimer = setTimeout(() => Store.updateBooking(no, {memo}).catch(fail), 800);
   });
+  let memoTimer;
   $("#detail").addEventListener("click", e => {
     const a = e.target.closest("[data-act]"); if (!a) return;
-    const b = bookings.find(x => x.no === selected); if (!b) return;
-    if (a.dataset.act === "cancel"){
-      if (!confirm(`${b.cust.name} 様の予約をキャンセルしますか？`)) return;
-      b.status = "cancelled"; toast("キャンセルしました（見本のため保存されません）");
-    } else if (a.dataset.act === "done"){
-      b.status = "done"; toast("来店済みにしました");
-    } else {
-      b.status = "confirmed"; toast("予約確定に戻しました");
-    }
-    render();
+    const b = bookings().find(x => x.no === selected); if (!b) return;
+    const act = a.dataset.act;
+    if (act === "cancel" && !confirm(`${b.cust.name} 様の予約をキャンセルしますか？`)) return;
+    const [status, msg] = act === "cancel" ? ["cancelled", "キャンセルしました"] : act === "done" ? ["done", "来店済みにしました"] : ["confirmed", "予約確定に戻しました"];
+    Store.updateBooking(b.no, {status}).then(() => toast(msg), fail);
   });
 
   // ---- modals ----
@@ -499,8 +463,8 @@ header.top .spacer{flex:1}
   };
   const overlaps = (k, s, e) =>
     dayBookings(k).filter(active).some(b => s < b.start + b.duration && b.start < e) ||
-    blocks.some(b => b.date === k && s < b.to && b.from < e);
-  $("#addForm").onsubmit = e => {
+    blocks().some(b => b.date === k && s < b.to && b.from < e);
+  $("#addForm").onsubmit = async e => {
     e.preventDefault();
     const f = new FormData(e.target);
     const menus = [f.get("menu"), ...f.getAll("opt")];
@@ -512,10 +476,12 @@ header.top .spacer{flex:1}
       : overlaps(k, start, start + dur) ? "ほかの予約・受付停止と時間が重なっています" : "";
     $("#addErr").textContent = err; if (err) return;
     const no = "YUKI-" + Date.now().toString(36).toUpperCase().slice(-6);
-    bookings.push({no, date:k, start, duration:dur, menus, price:menus.reduce((s, id) => s + MENU[id].price, 0),
-      cust:{name:f.get("name").trim(), tel:f.get("tel").trim() || "—", email:"", visit:menus.includes("opt-cannula") ? "初めて" : "2回目以降", note:""},
-      status:"confirmed", via:"電話", createdAt:TODAY, memo:f.get("note").trim()});
-    $("#addModal").hidden = true; day = k; selected = no; render(); toast("予約を追加しました（見本のため保存されません）");
+    try {
+      await Store.addBooking({no, date:k, start, duration:dur, menus, staff:"booth1", nominated:false, price:menus.reduce((s, id) => s + MENU[id].price, 0),
+        cust:{name:f.get("name").trim(), tel:f.get("tel").trim() || "—", email:"", visit:menus.includes("opt-cannula") ? "初めて" : "2回目以降", note:""},
+        status:"confirmed", via:"電話", createdAt:new Date().toISOString(), memo:f.get("note").trim()});
+    } catch { return fail(); }
+    $("#addModal").hidden = true; day = k; selected = no; render(); toast("予約を追加しました");
   };
 
   $("#openBlock").onclick = () => {
@@ -524,7 +490,7 @@ header.top .spacer{flex:1}
     openModal("#blockModal");
   };
   $("#bAll").onchange = e => $("#bRange").hidden = e.target.checked;
-  $("#blockForm").onsubmit = e => {
+  $("#blockForm").onsubmit = async e => {
     e.preventDefault();
     const f = new FormData(e.target); const k = f.get("date");
     const from = f.get("allday") ? OPEN : Number(f.get("from")); const to = f.get("allday") ? CLOSE : Number(f.get("to"));
@@ -532,10 +498,29 @@ header.top .spacer{flex:1}
     const err = !k ? "日付を選んでください" : to <= from ? "終了は開始より後にしてください"
       : clash.length ? `この時間には予約が${clash.length}件あります。先にお客様へ連絡・キャンセルしてください` : "";
     $("#blockErr").textContent = err; if (err) return;
-    blocks.push({date:k, from, to, reason:f.get("reason").trim() || (f.get("allday") ? "臨時休業" : "受付停止")});
-    $("#blockModal").hidden = true; day = k; selected = null; render(); toast("受付を止めました（見本のため保存されません）");
+    try { await Store.addBlock({date:k, from, to, reason:f.get("reason").trim() || (f.get("allday") ? "臨時休業" : "受付停止")}); }
+    catch { return fail(); }
+    $("#blockModal").hidden = true; day = k; selected = null; render(); toast("受付を止めました。予約ページでは選べなくなります");
   };
 
+  // 予約が入ったり変わったりしたら、すぐ表示を更新（メモ入力中は詳細欄をそのままにする）
+  let lastCount = null, lastMode = null;
+  Store.onChange(() => {
+    const n = bookings().length;
+    if (Store.loaded){
+      // デモで予約画面と同じページにあるときは、管理画面を開いている間だけ知らせる
+      const view = document.getElementById("adminView");
+      if (lastCount !== null && lastMode === Store.mode && n > lastCount && !(view && view.hidden)) toast("新しい予約が入りました");
+      lastCount = n; lastMode = Store.mode;
+    }
+    if (document.activeElement && document.activeElement.id === "memo"){
+      $("#dateTitle").textContent = fmtDate(day); renderWeek(); renderStats(); renderTimeline(); renderList();
+    } else render();
+  });
+  Store.ready.then(() => {
+    if (Store.mode === "local") $("#storeNote").textContent = "この端末のブラウザに保存しています（同じ端末の予約ページで入った予約が表示されます）。";
+  });
+  if (Store.loaded){ lastCount = bookings().length; lastMode = Store.mode; }
   render();
 })();
 </script>

@@ -318,6 +318,7 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
 
 <div class="toast" id="toast" hidden></div>
 
+<script src="store.js"></script>
 <script>
 (() => {
   // ---- data ----
@@ -360,27 +361,18 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
   const STEP_MIN = 30;
   const hoursFor = () => [10, 20.5]; // 10:00〜20:30（施術終了まで）
 
-  const KEY = "noa-bookings-v1";
-  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
-  const save = list => { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {} };
+  const Store = window.YukiStore;
+  // この端末で入れた予約の番号（「予約の確認」に表示する分）
+  const MY_KEY = "yuki-my-bookings";
+  const myNos = () => { try { return JSON.parse(localStorage.getItem(MY_KEY)) || []; } catch { return []; } };
+  const addMyNo = no => { try { localStorage.setItem(MY_KEY, JSON.stringify(myNos().concat(no))); } catch {} };
 
-  // 既存予約（他のお客様）のダミー：日付×スタッフごとに決定的に生成
   function hash(s){ let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
-  function seededBusy(dateKey, staffId, open, close){
-    const busy = [];
-    const n = hash(dateKey + staffId) % 4 + 1;
-    for (let i = 0; i < n; i++){
-      const h = hash(dateKey + staffId + i);
-      const start = open * 60 + (h % ((close - open) * 2 - 2)) * 30;
-      const len = [60, 90, 120][h % 3];
-      busy.push([start, Math.min(start + len, close * 60)]);
-    }
-    return busy;
-  }
-  function busyFor(dateKey, staffId, open, close){
-    const mine = load().filter(b => b.status !== "cancelled" && b.date === dateKey && b.staff === staffId)
-      .map(b => [b.start, b.start + b.duration]);
-    return seededBusy(dateKey, staffId, open, close).concat(mine);
+  // 埋まっている時間：ほかの予約と、お店が設定した受付停止
+  function busyFor(dateKey, staffId){
+    return Store.bookings.filter(b => b.status !== "cancelled" && b.date === dateKey && b.staff === staffId)
+      .map(b => [b.start, b.start + b.duration])
+      .concat(Store.blocks.filter(b => b.date === dateKey).map(b => [b.from, b.to]));
   }
   const overlaps = (a, b, list) => list.some(([s, e]) => a < e && s < b);
 
@@ -562,7 +554,7 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
     go(state.step === 0 ? 2 : state.step + 1);
   });
 
-  function confirmBooking(){
+  async function confirmBooking(){
     // 確定直前に再チェック
     const d = fromKey(state.date); const [open, close] = hoursFor(d);
     if (overlaps(state.start, state.start + duration(), busyFor(state.date, state.assigned, open, close))){
@@ -574,7 +566,10 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
       menus:MENU_ORDER.filter(id => state.menus.has(id)), staff:state.assigned, nominated:state.staff !== "any",
       price:price(), cust:state.cust, status:"confirmed", createdAt:new Date().toISOString(),
     };
-    const list = load(); list.push(booking); save(list);
+    $("#next").disabled = true;
+    try { await Store.addBooking(booking); }
+    catch (e) { toast("予約を保存できませんでした。時間をおいてもう一度お試しください"); updateBar(); return; }
+    addMyNo(no);
     $("#doneNo").textContent = no;
     $("#doneText").innerHTML = `${fmtDate(booking.date)} ${hm(booking.start)}〜 でご予約を承りました。<br>${esc(booking.cust.email)} 宛に確認メールをお送りします。`;
     go(5);
@@ -589,7 +584,8 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
   // ---- my bookings ----
   function renderMine(){
     const todayKey = toKey(new Date());
-    const list = load().filter(b => b.date >= todayKey).sort((a, b) => (a.date + pad(a.start)).localeCompare(b.date + pad(b.start)));
+    const mine = new Set(myNos());
+    const list = Store.bookings.filter(b => mine.has(b.no) && b.date >= todayKey).sort((a, b) => (a.date + pad(a.start)).localeCompare(b.date + pad(b.start)));
     if (!list.length){ $("#myList").innerHTML = `<p class="empty">現在ご予約はありません。</p>`; return; }
     $("#myList").innerHTML = list.map(b => {
       const cancelled = b.status === "cancelled";
@@ -609,12 +605,19 @@ footer{padding:40px 0 56px;text-align:center;font-size:12px;color:var(--muted)}
   $("#myList").addEventListener("click", e => {
     const b = e.target.closest("[data-cancel]"); if (!b) return;
     if (!confirm("この予約をキャンセルしますか？")) return;
-    const list = load(); const t = list.find(x => x.no === b.dataset.cancel);
-    if (t){ t.status = "cancelled"; save(list); }
-    renderMine(); toast("キャンセルしました");
+    Store.updateBooking(b.dataset.cancel, {status:"cancelled"})
+      .then(() => toast("キャンセルしました"), () => toast("キャンセルできませんでした。お電話でご連絡ください"));
   });
 
   // ---- init ----
+  // 予約データが変わったら（ほかのお客様の予約・お店の操作）表示を更新
+  Store.onChange(() => {
+    renderMine();
+    if (state.step === 2){
+      renderSlots();
+      if (state.start !== null && !document.querySelector(`.slot[data-slot="${state.start}"]:not(:disabled)`)){ state.start = null; updateBar(); }
+    }
+  });
   renderMenus(); renderMine(); go(0, false);
 })();
 </script>
